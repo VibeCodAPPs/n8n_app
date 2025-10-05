@@ -1,0 +1,45 @@
+{
+  "name": "n8n-launcher",
+  "version": "1.0.0",
+  "description": "Launcher Electron para n8n en Docker Windows (G:)",
+  "main": "main.js",
+  "author": "n8n Launcher",
+  "scripts": {
+    "dev": "electron .",
+    "prebuild": "node scripts/build-icon.js",
+    "build": "set ELECTRON_BUILDER_DISABLE_CODE_SIGNING=true&& electron-builder --win --x64"
+  },
+  "dependencies": {
+    "execa": "^8.0.1",
+    "wait-on": "^7.2.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.34.4"
+  },
+  "build": {
+    "appId": "com.yourorg.n8nlauncher",
+    "productName": "n8n Launcher",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "renderer/**/*",
+      "package.json",
+      "build/icon.ico"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false
+    }
+  }
+}

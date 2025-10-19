@@ -1,9 +1,9 @@
 {
   "name": "n8n-launcher",
-  "version": "1.0.0",
-  "description": "Launcher Electron para n8n en Docker Windows (G:)",
+  "version": "2.0.0",
+  "description": "Launcher Universal para n8n - Conecta a contenedores Docker locales o instancias en la nube",
   "main": "main.js",
-  "author": "n8n Launcher",
+  "author": "n8n Launcher Team",
   "scripts": {
     "dev": "electron .",
     "prebuild": "node scripts/build-icon.js",

@@ -24,6 +24,12 @@ build/
 .env
 .env.local
 
+# Launcher config (contains user connections)
+launcher/config.json
+
+# Old main.js backup
+launcher/main-old.js
+
 # Data directories (optional - uncomment if you don't want to track data)
-# n8n/n8n-data/
-# n8n/postgres-data/
+# n8n-data/
+# postgres-data/

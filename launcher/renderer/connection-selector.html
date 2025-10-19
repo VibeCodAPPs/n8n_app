@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleccionar Conexión n8n</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+      }
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .container {
+        background: #2a2a3e;
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #667eea;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .section-title {
+        color: #a4b5ff;
+      }
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: #667eea;
+      border-radius: 2px;
+    }
+
+    .connection-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .connection-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .connection-item {
+        border-color: #404054;
+        background: #353547;
+      }
+    }
+
+    .connection-item:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .connection-item:hover {
+        background: #404054;
+        border-color: #a4b5ff;
+      }
+    }
+
+    .connection-item.selected {
+      border-color: #667eea;
+      background: #f0f3ff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .connection-item.selected {
+        background: #4a4a64;
+        border-color: #a4b5ff;
+      }
+    }
+
+    .connection-info {
+      flex: 1;
+    }
+
+    .connection-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .connection-details {
+      font-size: 13px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .connection-details {
+        color: #a0a0a0;
+      }
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .status-running {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-stopped {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-remote {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .status-running {
+        background: #1e4620;
+        color: #8fd99c;
+      }
+      .status-stopped {
+        background: #4a3c1a;
+        color: #f0d687;
+      }
+      .status-remote {
+        background: #1a3a42;
+        color: #7dd3e8;
+      }
+    }
+
+    .connection-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #f0f0f0;
+      color: #667eea;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn-icon {
+        color: #a0a0a0;
+      }
+      .btn-icon:hover {
+        background: #4a4a64;
+        color: #a4b5ff;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .input-group input {
+        background: #353547;
+        border-color: #404054;
+        color: #e0e0e0;
+      }
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn-secondary {
+        background: #404054;
+        color: #e0e0e0;
+      }
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn-secondary:hover {
+        background: #4a4a64;
+      }
+    }
+
+    .footer {
+      padding: 20px 30px;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .footer {
+        background: #1e1e2e;
+      }
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      color: #666;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .loading {
+        color: #a0a0a0;
+      }
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 Conectar a n8n</h1>
+      <p>Selecciona un servidor Docker local o conéctate a la nube</p>
+    </div>
+
+    <div class="content">
+      <!-- Contenedores Docker Locales -->
+      <div class="section">
+        <div class="section-title">
+          🐳 Contenedores Docker Locales
+        </div>
+        <div id="dockerContainers" class="connection-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            <span>Detectando contenedores...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conexiones Guardadas en la Nube -->
+      <div class="section">
+        <div class="section-title">
+          ☁️ Conexiones en la Nube
+        </div>
+        <div id="remoteConnections" class="connection-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">📡</div>
+            <p>No hay conexiones remotas guardadas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nueva Conexión -->
+      <div class="section">
+        <div class="section-title">
+          ➕ Nueva Conexión Personalizada
+        </div>
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="newConnectionName" 
+            placeholder="Nombre (ej: Mi n8n Cloud)"
+          />
+          <input 
+            type="url" 
+            id="newConnectionUrl" 
+            placeholder="URL (ej: https://mi-n8n.app.n8n.cloud)"
+          />
+          <button class="btn btn-secondary" onclick="addNewConnection()">
+            💾 Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="checkbox-group">
+        <input type="checkbox" id="autoConnect" checked>
+        <label for="autoConnect">Reconectar automáticamente</label>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-secondary" onclick="window.close()">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" id="connectBtn" onclick="connectToSelected()" disabled>
+          Conectar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    let selectedConnection = null;
+
+    // Cargar conexiones al iniciar
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadDockerContainers();
+      await loadRemoteConnections();
+      await loadSettings();
+    });
+
+    async function loadDockerContainers() {
+      try {
+        const containers = await ipcRenderer.invoke('list-docker-containers');
+        renderDockerContainers(containers);
+      } catch (error) {
+        document.getElementById('dockerContainers').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p>No se pudieron detectar contenedores Docker</p>
+            <p style="font-size: 12px; margin-top: 8px; color: #999;">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadRemoteConnections() {
+      try {
+        const connections = await ipcRenderer.invoke('list-remote-connections');
+        renderRemoteConnections(connections);
+      } catch (error) {
+        console.error('Error loading remote connections:', error);
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        const config = await ipcRenderer.invoke('get-config');
+        document.getElementById('autoConnect').checked = config.autoConnect !== false;
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    }
+
+    function renderDockerContainers(containers) {
+      const container = document.getElementById('dockerContainers');
+      
+      if (!containers || containers.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🐳</div>
+            <p>No se encontraron contenedores n8n</p>
+            <p style="font-size: 12px; margin-top: 8px;">Ejecuta: <code>docker compose up -d</code></p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = containers.map(c => `
+        <div class="connection-item" onclick="selectConnection('${c.id}', 'docker')">
+          <div class="connection-info">
+            <div class="connection-name">${c.name}</div>
+            <div class="connection-details">
+              <span class="status-badge status-${c.status === 'running' ? 'running' : 'stopped'}">
+                ${c.status === 'running' ? '🟢 Running' : '🟡 Stopped'}
+              </span>
+              <span>${c.url}</span>
+            </div>
+          </div>
+          <div class="connection-actions">
+            ${c.status === 'running' ? 
+              `<button class="btn-icon" onclick="event.stopPropagation(); restartContainer('${c.id}')" title="Reiniciar">🔄</button>` :
+              `<button class="btn-icon" onclick="event.stopPropagation(); startContainer('${c.id}')" title="Iniciar">▶️</button>`
+            }
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRemoteConnections(connections) {
+      const container = document.getElementById('remoteConnections');
+      
+      if (!connections || connections.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📡</div>
+            <p>No hay conexiones remotas guardadas</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = connections.map(c => `
+        <div class="connection-item" onclick="selectConnection('${c.id}', 'remote')">
+          <div class="connection-info">
+            <div class="connection-name">${c.name}</div>
+            <div class="connection-details">
+              <span class="status-badge status-remote">☁️ Remoto</span>
+              <span>${c.url}</span>
+            </div>
+          </div>
+          <div class="connection-actions">
+            <button class="btn-icon" onclick="event.stopPropagation(); deleteConnection('${c.id}')" title="Eliminar">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectConnection(id, type) {
+      // Remover selección previa
+      document.querySelectorAll('.connection-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Seleccionar nuevo
+      event.currentTarget.classList.add('selected');
+      selectedConnection = { id, type };
+      document.getElementById('connectBtn').disabled = false;
+    }
+
+    async function connectToSelected() {
+      if (!selectedConnection) return;
+      
+      const autoConnect = document.getElementById('autoConnect').checked;
+      
+      try {
+        document.getElementById('connectBtn').disabled = true;
+        document.getElementById('connectBtn').textContent = 'Conectando...';
+        
+        await ipcRenderer.invoke('connect-to-server', {
+          ...selectedConnection,
+          autoConnect
+        });
+        
+        window.close();
+      } catch (error) {
+        alert(`Error al conectar: ${error.message}`);
+        document.getElementById('connectBtn').disabled = false;
+        document.getElementById('connectBtn').textContent = 'Conectar';
+      }
+    }
+
+    async function addNewConnection() {
+      const name = document.getElementById('newConnectionName').value.trim();
+      const url = document.getElementById('newConnectionUrl').value.trim();
+      
+      if (!name || !url) {
+        alert('Por favor ingresa un nombre y una URL');
+        return;
+      }
+      
+      try {
+        await ipcRenderer.invoke('add-remote-connection', { name, url });
+        document.getElementById('newConnectionName').value = '';
+        document.getElementById('newConnectionUrl').value = '';
+        await loadRemoteConnections();
+      } catch (error) {
+        alert(`Error al guardar conexión: ${error.message}`);
+      }
+    }
+
+    async function startContainer(id) {
+      try {
+        await ipcRenderer.invoke('start-container', id);
+        await loadDockerContainers();
+      } catch (error) {
+        alert(`Error al iniciar contenedor: ${error.message}`);
+      }
+    }
+
+    async function restartContainer(id) {
+      try {
+        await ipcRenderer.invoke('restart-container', id);
+        await loadDockerContainers();
+      } catch (error) {
+        alert(`Error al reiniciar contenedor: ${error.message}`);
+      }
+    }
+
+    async function deleteConnection(id) {
+      if (!confirm('¿Estás seguro de eliminar esta conexión?')) return;
+      
+      try {
+        await ipcRenderer.invoke('delete-connection', id);
+        await loadRemoteConnections();
+      } catch (error) {
+        alert(`Error al eliminar conexión: ${error.message}`);
+      }
+    }
+  </script>
+</body>
+</html>

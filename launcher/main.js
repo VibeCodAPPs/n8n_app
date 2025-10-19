@@ -231,8 +231,7 @@ function createSelectorWindow() {
     width: 750,
     height: 700,
     resizable: false,
-    modal: true,
-    parent: mainWin,
+    show: true,
     icon: path.resolve(__dirname, 'build', 'icon.ico'),
     webPreferences: {
       contextIsolation: false,
@@ -245,6 +244,10 @@ function createSelectorWindow() {
   
   selectorWin.on('closed', () => {
     selectorWin = null;
+    // If selector is closed without connection, quit app
+    if (!currentConnection) {
+      app.quit();
+    }
   });
 }
 
@@ -483,6 +486,12 @@ function ensureDirs() {
 }
 
 app.whenReady().then(async () => {
+  // Fix Windows taskbar icon grouping
+  // This ensures the app and shortcuts are recognized as the same application
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.yourorg.n8nlauncher');
+  }
+  
   nativeTheme.themeSource = 'dark';
   createMainWindow();
   buildMenu();

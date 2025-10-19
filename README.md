@@ -21,27 +21,61 @@ Aplicación de escritorio para Windows que te permite conectarte a instancias de
 
 ## 🚀 Inicio Rápido
 
-### Primera Configuración
+### 📦 Descarga del Ejecutable (Recomendado)
 
-1. **Clonar o descargar el proyecto**
+#### Para Usuarios Finales:
 
-2. **Copiar archivo de configuración:**
+**Opción 1: Descarga desde GitHub Releases**
+1. Ve a la [página de Releases](https://github.com/tu-usuario/App_N8N/releases)
+2. Descarga **`n8n Launcher 2.0.0.exe`** de la última versión
+3. Ejecuta el archivo descargado
+4. La primera vez verás el selector de conexión
+
+**Opción 2: Compilar desde Código Fuente**
+```powershell
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/App_N8N.git
+cd App_N8N/launcher
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Compilar ejecutable
+npm run build
+
+# 4. El ejecutable estará en:
+# launcher\dist\n8n Launcher 2.0.0.exe
+```
+
+**📍 Ubicación del ejecutable:**
+```
+App_N8N/
+└── launcher/
+    └── dist/
+        └── n8n Launcher 2.0.0.exe  ← Ejecutable compilado
+```
+
+### 🐳 Configuración de Docker (Para Contenedores Locales)
+
+Si quieres usar contenedores Docker locales:
+
+1. **Copiar archivo de configuración:**
    ```bash
    copy .env.example .env
    ```
    
-3. **Iniciar Docker Desktop** (asegúrate de que esté completamente iniciado)
+2. **Iniciar Docker Desktop** (asegúrate de que esté completamente iniciado)
 
-4. **Probar manualmente con Docker Compose:**
+3. **Probar manualmente con Docker Compose:**
    ```bash
    docker compose up -d
    ```
    
-5. **Verificar que funciona:**
+4. **Verificar que funciona:**
    - Abre tu navegador en `http://localhost:5678`
    - Deberías ver la interfaz de n8n
 
-6. **Detener los contenedores:**
+5. **Detener los contenedores:**
    ```bash
    docker compose down
    ```
@@ -73,7 +107,7 @@ Aplicación de escritorio para Windows que te permite conectarte a instancias de
    ```bash
    npm run build
    ```
-   El ejecutable estará en `launcher/dist/n8n Launcher 1.0.0.exe`
+   El ejecutable estará en `launcher/dist/n8n Launcher 2.0.0.exe`
 
 ## 🔌 Tipos de Conexión
 
@@ -277,6 +311,7 @@ docker exec -it n8n_postgres psql -U n8n -d n8n
 - Indicadores de carga
 - Mensajes de error descriptivos
 - Checkbox para auto-reconexión
+- **Fix de barra de tareas de Windows** - El icono anclado ahora se agrupa correctamente (App User Model ID)
 
 **Compatibilidad:**
 - ✅ Contenedores Docker con cualquier nombre

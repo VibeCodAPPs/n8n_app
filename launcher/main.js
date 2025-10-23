@@ -59,9 +59,26 @@ function generateId() {
 
 async function isDockerReady() {
   try {
-    await (await ex())('docker', ['info'], { timeout: 8000 });
-    return true;
-  } catch {
+    const execaFn = await ex();
+    // Try docker ps first (faster and more reliable)
+    const result = await execaFn('docker', ['ps', '--format', 'json'], { 
+      timeout: 5000,
+      reject: false 
+    });
+    
+    if (result.exitCode === 0) {
+      return true;
+    }
+    
+    // Fallback to docker info
+    const infoResult = await execaFn('docker', ['info'], { 
+      timeout: 5000,
+      reject: false 
+    });
+    
+    return infoResult.exitCode === 0;
+  } catch (error) {
+    console.error('Docker check failed:', error.message);
     return false;
   }
 }
@@ -87,11 +104,10 @@ async function listN8nContainers() {
   try {
     const execaFn = await ex();
     
-    // List all containers with n8n image
+    // List ALL containers (not just n8n)
     const { stdout } = await execaFn('docker', [
       'ps', '-a',
-      '--filter', 'ancestor=n8nio/n8n',
-      '--format', '{{.ID}}|{{.Names}}|{{.Status}}|{{.Ports}}'
+      '--format', '{{.ID}}|{{.Names}}|{{.Status}}|{{.Ports}}|{{.Image}}'
     ]);
     
     if (!stdout.trim()) {
@@ -102,13 +118,17 @@ async function listN8nContainers() {
     const lines = stdout.trim().split('\n');
     
     for (const line of lines) {
-      const [id, name, status, ports] = line.split('|');
+      const [id, name, status, ports, image] = line.split('|');
       
-      // Extract port from ports string (e.g., "0.0.0.0:5678->5678/tcp")
-      let port = '5678';
-      const portMatch = ports.match(/0\.0\.0\.0:(\d+)->5678/);
+      // Extract first published port from ports string
+      let port = null;
+      let url = null;
+      
+      // Try to find published ports (e.g., "0.0.0.0:5678->5678/tcp" or "0.0.0.0:8080->80/tcp")
+      const portMatch = ports.match(/0\.0\.0\.0:(\d+)->/);
       if (portMatch) {
         port = portMatch[1];
+        url = `http://localhost:${port}`;
       }
       
       const isRunning = status.toLowerCase().includes('up');
@@ -116,8 +136,9 @@ async function listN8nContainers() {
       containers.push({
         id,
         name,
+        image,
         status: isRunning ? 'running' : 'stopped',
-        url: `http://localhost:${port}`,
+        url: url || 'No hay puertos publicados',
         port,
         type: 'docker'
       });
@@ -337,10 +358,30 @@ function buildMenu() {
 // ============================================================================
 
 ipcMain.handle('list-docker-containers', async () => {
-  if (!(await isDockerReady())) {
-    throw new Error('Docker Desktop no está ejecutándose');
+  const dockerReady = await isDockerReady();
+  
+  if (!dockerReady) {
+    return {
+      available: false,
+      message: 'Docker Desktop no está ejecutándose',
+      containers: []
+    };
   }
-  return await listN8nContainers();
+  
+  try {
+    const containers = await listN8nContainers();
+    return {
+      available: true,
+      message: null,
+      containers
+    };
+  } catch (error) {
+    return {
+      available: false,
+      message: error.message || 'Error al obtener contenedores',
+      containers: []
+    };
+  }
 });
 
 ipcMain.handle('list-remote-connections', async () => {
@@ -440,6 +481,18 @@ ipcMain.handle('connect-to-server', async (event, { id, type, autoConnect }) => 
     
     currentConnection = connection;
     
+    // Create main window if it doesn't exist
+    if (!mainWin) {
+      createMainWindow();
+      buildMenu();
+    }
+    
+    // Close selector window
+    if (selectorWin) {
+      selectorWin.close();
+      selectorWin = null;
+    }
+    
     // Load n8n in main window
     await mainWin.loadURL(container.url);
     
@@ -463,12 +516,26 @@ ipcMain.handle('connect-to-server', async (event, { id, type, autoConnect }) => 
     
     currentConnection = connection;
     
+    // Create main window if it doesn't exist
+    if (!mainWin) {
+      createMainWindow();
+      buildMenu();
+    }
+    
+    // Close selector window
+    if (selectorWin) {
+      selectorWin.close();
+      selectorWin = null;
+    }
+    
     // Load n8n in main window
     await mainWin.loadURL(connection.url);
   }
   
   // Rebuild menu to update "Reiniciar contenedor" state
-  buildMenu();
+  if (mainWin) {
+    buildMenu();
+  }
 });
 
 // ============================================================================
@@ -493,8 +560,6 @@ app.whenReady().then(async () => {
   }
   
   nativeTheme.themeSource = 'dark';
-  createMainWindow();
-  buildMenu();
   ensureDirs();
   
   const config = loadConfig();
@@ -527,6 +592,11 @@ app.whenReady().then(async () => {
             const isValid = await validateN8nURL(container.url);
             if (isValid) {
               currentConnection = lastConnection;
+              
+              // Create main window for auto-connect
+              createMainWindow();
+              buildMenu();
+              
               await mainWin.loadURL(container.url);
               return;
             }
@@ -536,6 +606,11 @@ app.whenReady().then(async () => {
           const isValid = await validateN8nURL(lastConnection.url);
           if (isValid) {
             currentConnection = lastConnection;
+            
+            // Create main window for auto-connect
+            createMainWindow();
+            buildMenu();
+            
             await mainWin.loadURL(lastConnection.url);
             return;
           }

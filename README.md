@@ -1,17 +1,18 @@
 # n8n Desktop App - Launcher Universal
 
-**Versión 2.0.0** - Launcher universal con detección automática y conexión a la nube
+**Versión 2.0.1** - Launcher universal con detección automática y conexión a la nube
 
 Aplicación de escritorio para Windows que te permite conectarte a instancias de n8n, ya sean locales (Docker) o remotas (nube).
 
 ## ✨ Características
 
-- 🐳 **Detección automática** de contenedores Docker n8n locales
-- ☁️ **Conexión a la nube** - Conecta a instancias remotas de n8n
-- 🔄 **Gestión de múltiples conexiones** - Guarda y administra diferentes servidores
-- ⚡ **Reconexión automática** - Se conecta automáticamente a tu última conexión
-- 🎨 **Selector visual** - Interfaz moderna para elegir tu servidor
-- 🔧 **Control de contenedores** - Inicia, detiene y reinicia contenedores desde la app
+- 🐳 **Detección automática (smart)** de *todos* los contenedores Docker disponibles
+- ☁️ **Conexión a la nube** con guardado permanente de credenciales y URLs
+- 🔄 **Gestión de múltiples conexiones** (agregar, auto-guardar y eliminar con un clic)
+- ⚡ **Reconexión automática** al último servidor utilizado
+- 🎨 **Selector visual** con tema oficial n8n (degradado rosa-rojo)
+- 🔧 **Control de contenedores** (iniciar, reiniciar) y botón **Recargar** instantáneo
+- 🧩 **Build portátil completo**: incluye `ffmpeg.dll` y dependencias de Electron
 
 ## 📋 Requisitos Previos
 
@@ -27,7 +28,7 @@ Aplicación de escritorio para Windows que te permite conectarte a instancias de
 
 **Opción 1: Descarga desde GitHub Releases**
 1. Ve a la [página de Releases](https://github.com/tu-usuario/App_N8N/releases)
-2. Descarga **`n8n Launcher 2.0.0.exe`** de la última versión
+2. Descarga **`n8n Launcher 2.0.1.exe`** de la última versión
 3. Ejecuta el archivo descargado
 4. La primera vez verás el selector de conexión
 
@@ -44,7 +45,7 @@ npm install
 npm run build
 
 # 4. El ejecutable estará en:
-# launcher\dist\n8n Launcher 2.0.0.exe
+# launcher\dist\n8n Launcher 2.0.1.exe
 ```
 
 **📍 Ubicación del ejecutable:**
@@ -52,7 +53,7 @@ npm run build
 App_N8N/
 └── launcher/
     └── dist/
-        └── n8n Launcher 2.0.0.exe  ← Ejecutable compilado
+        └── n8n Launcher 2.0.1.exe  ← Ejecutable compilado
 ```
 
 ### 🐳 Configuración de Docker (Para Contenedores Locales)
